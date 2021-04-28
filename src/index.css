@@ -13,7 +13,20 @@ body {
   background-color: #3f3f3f;
 }
 
-.app {
+.header {
+  width: 90%;
+  max-width: 43rem;
+  padding: 1rem;
+  border-radius: 12px;
+  background-color: white;
+  margin: 3rem auto;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.form {
   width: 90%;
   max-width: 43rem;
   padding: 1rem;

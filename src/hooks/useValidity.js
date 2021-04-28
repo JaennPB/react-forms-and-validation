@@ -26,7 +26,7 @@ const useValidity = (validationDataFunction) => {
     valueIsInvalid, //value
     changeValueHandler, //func
     blurInputHandler, // func
-    reset,
+    reset, // func
   };
 };
 

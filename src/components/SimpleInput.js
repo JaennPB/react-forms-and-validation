@@ -1,5 +1,3 @@
-import { useState } from "react";
-
 import useValidity from "../hooks/useValidity";
 
 const SimpleInput = (props) => {
@@ -12,32 +10,27 @@ const SimpleInput = (props) => {
     reset: nameReset,
   } = useValidity((value) => value.trim() !== "");
 
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [emailIsTouched, setEmailIsTouched] = useState(false);
-
-  const emailValidation = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-  const enteredEmailIsValid = emailValidation.test(
-    String(enteredEmail).toLowerCase()
-  );
-  const enteredEmailIsInvalid = !enteredEmailIsValid && emailIsTouched;
+  const {
+    enteredValue: enteredEmail,
+    valueIsValid: emailIsValid,
+    valueIsInvalid: emailIsInvalid,
+    changeValueHandler: setEnteredEmail,
+    blurInputHandler: setEmailIsTouched,
+    reset: emailReset,
+  } = useValidity((value) => {
+    const emailValidation = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+    return emailValidation.test(String(value).toLowerCase());
+  });
 
   let formIsValid = false;
-  if (nameIsValid && enteredEmailIsValid) {
+  if (nameIsValid && emailIsValid) {
     formIsValid = true;
   }
-
-  const changeEmailHandler = (e) => {
-    setEnteredEmail(e.target.value);
-  };
-
-  const blurEmailHandler = () => {
-    setEmailIsTouched(true);
-  };
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
 
-    if (!nameIsValid || !enteredEmailIsValid) {
+    if (!nameIsValid || !emailIsValid) {
       return;
     }
 
@@ -45,8 +38,7 @@ const SimpleInput = (props) => {
     console.log(enteredEmail);
     // reseting to a brand new form
     nameReset();
-    setEnteredEmail("");
-    setEmailIsTouched(false);
+    emailReset();
   };
 
   return (
@@ -64,16 +56,16 @@ const SimpleInput = (props) => {
           <p className="error-text">Please enter a valid name.</p>
         )}
       </div>
-      <div className={`form-control ${enteredEmailIsInvalid && "invalid"}`}>
+      <div className={`form-control ${emailIsInvalid && "invalid"}`}>
         <label htmlFor="email">Your email</label>
         <input
           type="email"
           id="email"
-          onChange={changeEmailHandler}
-          onBlur={blurEmailHandler}
+          onChange={setEnteredEmail}
+          onBlur={setEmailIsTouched}
           value={enteredEmail}
         />
-        {enteredEmailIsInvalid && (
+        {emailIsInvalid && (
           <p className="error-text">Please enter a valid email.</p>
         )}
       </div>
