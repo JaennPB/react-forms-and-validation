@@ -1,59 +1,82 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+
+import useValidity from "../hooks/useValidity";
 
 const SimpleInput = (props) => {
-  const [enteredName, setEnteredName] = useState("");
-  const [isTouched, setIsTouched] = useState(false);
-  const [formIsValid, setFormIsValid] = useState(false);
+  const {
+    enteredValue: enteredName,
+    valueIsValid: nameIsValid,
+    valueIsInvalid: nameIsInvalid,
+    changeValueHandler: setEnteredName,
+    blurInputHandler: setNameIsTouched,
+    reset: nameReset,
+  } = useValidity((value) => value.trim() !== "");
 
-  const enteredNameIsValid = enteredName.trim() !== "";
-  const formIsInvalid = !enteredNameIsValid && isTouched;
+  const [enteredEmail, setEnteredEmail] = useState("");
+  const [emailIsTouched, setEmailIsTouched] = useState(false);
 
-  useEffect(() => {
-    if (enteredNameIsValid) {
-      setFormIsValid(true);
-    } else {
-      setFormIsValid(false);
-    }
-  }, [enteredNameIsValid]);
+  const emailValidation = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
+  const enteredEmailIsValid = emailValidation.test(
+    String(enteredEmail).toLowerCase()
+  );
+  const enteredEmailIsInvalid = !enteredEmailIsValid && emailIsTouched;
 
-  const changeNameHandler = (e) => {
-    setEnteredName(e.target.value);
+  let formIsValid = false;
+  if (nameIsValid && enteredEmailIsValid) {
+    formIsValid = true;
+  }
+
+  const changeEmailHandler = (e) => {
+    setEnteredEmail(e.target.value);
   };
 
-  const blurNameHandler = () => {
-    setIsTouched(true);
+  const blurEmailHandler = () => {
+    setEmailIsTouched(true);
   };
 
   const onSubmitHandler = (e) => {
     e.preventDefault();
 
-    setIsTouched(true);
-
-    if (!enteredNameIsValid) {
+    if (!nameIsValid || !enteredEmailIsValid) {
       return;
     }
 
     console.log(enteredName);
-    setEnteredName("");
+    console.log(enteredEmail);
     // reseting to a brand new form
-    setIsTouched(false);
+    nameReset();
+    setEnteredEmail("");
+    setEmailIsTouched(false);
   };
 
   return (
     <form onSubmit={onSubmitHandler}>
-      <div className={`form-control ${formIsInvalid && "invalid"}`}>
+      <div className={`form-control ${nameIsInvalid && "invalid"}`}>
         <label htmlFor="name">Your Name</label>
         <input
           type="text"
           id="name"
-          onChange={changeNameHandler}
-          onBlur={blurNameHandler}
+          onChange={setEnteredName}
+          onBlur={setNameIsTouched}
           value={enteredName}
         />
+        {nameIsInvalid && (
+          <p className="error-text">Please enter a valid name.</p>
+        )}
       </div>
-      {formIsInvalid && (
-        <p className="error-text">Please enter a valid name.</p>
-      )}
+      <div className={`form-control ${enteredEmailIsInvalid && "invalid"}`}>
+        <label htmlFor="email">Your email</label>
+        <input
+          type="email"
+          id="email"
+          onChange={changeEmailHandler}
+          onBlur={blurEmailHandler}
+          value={enteredEmail}
+        />
+        {enteredEmailIsInvalid && (
+          <p className="error-text">Please enter a valid email.</p>
+        )}
+      </div>
       <div className="form-actions">
         <button disabled={!formIsValid}>Submit</button>
       </div>
